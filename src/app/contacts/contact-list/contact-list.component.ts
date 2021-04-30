@@ -14,16 +14,14 @@ export class ContactListComponent implements OnInit {
       "R. Kent Jackson", 
       "jacksonk@byui.edu",
       "208-496-3771",
-      // "https://web.byui.edu/Directory/Employee/jacksonk.jpg",
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      "../../assets/images/jacksonk.jpg",
       null),
     new Contact(
       2, 
       "Rex Barzee", 
       "barzeer@byui.edu",
       "208-496-3768",
-      // "https://web.byui.edu/Directory/Employee/barzeer.jpg",
-      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      "../../assets/images/barzeer.jpg",
       null),
   ];
 

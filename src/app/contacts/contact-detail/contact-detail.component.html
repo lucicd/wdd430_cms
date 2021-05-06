@@ -1,14 +1,16 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <div class="clearfix">
-      <h4>{{ contact.name }}</h4>
-      <div class="pull-left">
+    <div class="row pad-left-right">
+      <span class="pull-left title">{{ contact.name }}</span>
+    </div>
+    <div class="row pad-left-right">
+      <span class="pull-left">
         <img
           src="{{ contact.imageUrl }}"
           alt="{{ contact.name }}"
           class="img-responsive"
-          style="max-height: 50px;">
-      </div>
+          style="max-height: 80px;">
+      </span>
       <span class="pull-right">
         <button class="btn btn-primary">Edit</button>
         <button class="btn btn-danger">Delete</button>
@@ -16,7 +18,7 @@
     </div>
   </div>
   <div class="panel-body">
-    <p>Email: <span>{{ contact.email }}</span></p>
-    <p>Phone: <span>{{ contact.phone }}</span></p>
+    <p><label>Email:&nbsp;</label><span>{{ contact.email }}</span></p>
+    <p><label>Phone:&nbsp;</label><span>{{ contact.phone }}</span></p>
   </div>
 </div>

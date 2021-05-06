@@ -1,19 +1,17 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    <div class="clearfix">
-      <div class="pull-left">
-        <h3>Contacts</h3>
-      </div>
-      <span class="pull-right">
-        <button class="btn btn-success">New Contact</button>
-      </span>
+    <div class="row pad-left-right">
+      <span class="pull-let title">Contacts</span>
+      <a class="btn btn-success pull-right">New Contact</a>
     </div>
   </div>
   <div class="panel-body">
-    <cms-contact-item
-      *ngFor="let contactEl of contacts"
-      [contact]="contactEl"
-      (click)="onSelected(contactEl)">
-    </cms-contact-item>
+    <div class="center-panel">
+      <cms-contact-item
+        *ngFor="let contactEl of contacts"
+        [contact]="contactEl"
+        (click)="onSelected(contactEl)">
+      </cms-contact-item>
+    </div>
   </div>
 </div>

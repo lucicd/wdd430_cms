@@ -14,17 +14,19 @@
       </div>
       <div class="row">
         <div class="col-xs-12">
-          <button
-            class="btn btn-success"
-            type="submit" (click)="onSendMessage(); $event.preventDefault()">
-            Send
-          </button>
-          <button
-            class="btn btn-danger"
-            type="button"
-            (click)="onClear()">
-            Clear
-          </button>
+          <div class="btn-toolbar">
+            <button
+              class="btn btn-success"
+              type="submit" (click)="onSendMessage(); $event.preventDefault()">
+              Send
+            </button>
+            <button
+              class="btn btn-danger"
+              type="button"
+              (click)="onClear()">
+              Clear
+            </button>
+          </div>
         </div>
       </div>
     </form>

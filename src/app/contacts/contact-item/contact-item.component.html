@@ -6,6 +6,7 @@
   </div>
   <span class="pull-right">
     <img
+      *ngIf="contact.imageUrl !== ' '"
       src="{{ contact.imageUrl }}"
       alt="{{ contact.name }}"
       class="img-responsive"

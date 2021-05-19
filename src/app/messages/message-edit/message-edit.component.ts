@@ -7,8 +7,8 @@ import { Message } from '../message.model';
   styleUrls: ['./message-edit.component.css']
 })
 export class MessageEditComponent implements OnInit {
-  @ViewChild('subject') subject: ElementRef;
-  @ViewChild('msgText') msgText: ElementRef;
+  @ViewChild('subject') subject: ElementRef = {} as ElementRef;
+  @ViewChild('msgText') msgText: ElementRef = {} as ElementRef;
   @Output() addMessageEvent = new EventEmitter<Message>();
   currentSender = "Drazen";
 

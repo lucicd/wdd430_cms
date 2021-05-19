@@ -7,7 +7,7 @@ import { Document } from './document.model';
   styleUrls: ['./documents.component.css']
 })
 export class DocumentsComponent implements OnInit {
-  selectedDocument: Document;
+  selectedDocument: Document = {} as Document;
 
   constructor() { }
 

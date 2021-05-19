@@ -8,7 +8,7 @@ import { Document } from '../document.model';
 })
 export class DocumentDetailComponent implements OnInit {
 
-  @Input() document: Document;
+  @Input() document: Document = {} as Document;
 
   constructor() { }
 

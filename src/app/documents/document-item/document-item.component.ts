@@ -7,7 +7,7 @@ import { Document } from '../document.model';
   styleUrls: ['./document-item.component.css']
 })
 export class DocumentItemComponent implements OnInit {
-  @Input() document: Document
+  @Input() document: Document = {} as Document;
 
   constructor() { }
 

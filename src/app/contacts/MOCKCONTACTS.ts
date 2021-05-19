@@ -277,5 +277,14 @@ export const MOCKCONTACTS: Contact[] = [
       group: null
     }
   ]
-  }
+  },
+  //Me
+  {
+    id: '42',
+    name: 'Drazen Lucic',
+    email: 'luc17007@byui.edu',
+    phone: '555-496-4242',
+    imageUrl: '../../assets/images/drazen.jpg',
+    group: null
+  },
 ];

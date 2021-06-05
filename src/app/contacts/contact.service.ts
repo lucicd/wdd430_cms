@@ -10,7 +10,6 @@ export class ContactService {
   private contacts: Contact[] = [];
   private maxContactId = 0;
   contactSelectedEvent = new EventEmitter<Contact>();
-  // contactChangedEvent = new EventEmitter<Contact[]>();
   contactListChangedEvent = new Subject<Contact[]>();
 
   constructor() {

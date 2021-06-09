@@ -51,7 +51,7 @@ export class ContactService {
     this.contactListChangedEvent.next(this.contacts.slice());
   }
 
-  updateContact(originalContact: Contact, newContact: Contact) {
+  updateContact(originalContact: Contact | null, newContact: Contact | null) {
     if (!originalContact || !newContact) {
       return;
     }

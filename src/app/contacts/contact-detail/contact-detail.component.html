@@ -23,5 +23,23 @@
   <div class="panel-body">
     <p><label>Email:&nbsp;</label><span>{{ contact.email }}</span></p>
     <p><label>Phone:&nbsp;</label><span>{{ contact.phone }}</span></p>
+    <label for="groupList">Group Contacts:</label>
+    <div 
+      *ngFor="let contact of contact.group"
+      id="groupList">
+      <div class="list-group-item clearfix">
+        <div class="pull-left">
+          <h4 class="list-group-item-heading">{{ contact.name }}</h4>
+        </div>
+        <span class="pull-right">
+          <img
+            *ngIf="contact.imageUrl !== ' '"
+            src="{{ contact.imageUrl }}"
+            alt="{{ contact.name }}"
+            class="img-responsive"
+            style="max-height: 50px;">
+        </span>
+      </div>      
+    </div>
   </div>
 </div>

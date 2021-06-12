@@ -78,6 +78,11 @@
       <div class="row">
         <div class="form-group">
           <label for="groupList">Group Contacts:</label>
+          <span
+            class="help-block alert alert-danger"
+            *ngIf="duplicateInclusion || currentInclusion">
+            Contact can not be added to the group. It is already in the group or is the current contact.
+          </span>
 
           <div class="row" id="groupList"
               style="min-height: 3rem;"
@@ -97,7 +102,7 @@
         </div>
       </div>
 
-      <div class="row" *ngIf="!f.valid && f.touched">
+      <div class="row" *ngIf="!name.valid && name.touched || !email.valid && email.touched">
         <div class="col-sm-12">
           <span class="help-block alert alert-danger">
             The Name and Email fields are required.

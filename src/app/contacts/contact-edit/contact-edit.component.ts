@@ -14,6 +14,8 @@ export class ContactEditComponent implements OnInit {
   contact: Contact = <Contact>{};
   groupContacts: Contact[] = [];
   editMode: boolean = false;
+  currentInclusion: boolean = false;
+  duplicateInclusion: boolean = false;
 
   constructor(
     private contactService: ContactService, 
@@ -32,11 +34,12 @@ export class ContactEditComponent implements OnInit {
           if (!this.originalContact) {
             return;
           }
-          if (this.originalContact.group) {
-            this.groupContacts = this.originalContact.group.slice();
-          }
           this.editMode = true;
           this.contact= JSON.parse(JSON.stringify(this.originalContact));
+          
+          if (this.contact.group) {
+            this.groupContacts = JSON.parse(JSON.stringify(this.contact.group));
+          }
         }
       );
     }
@@ -68,11 +71,15 @@ export class ContactEditComponent implements OnInit {
     if (!newContact) {
       return true;
     }
+    this.currentInclusion = false;
+    this.duplicateInclusion = false;
     if (this.contact && newContact.id === this.contact.id) {
+      this.currentInclusion = true;
       return true;
     }
     for (let i = 0; i < this.groupContacts.length; i++) {
       if (newContact.id === this.groupContacts[i].id) {
+        this.duplicateInclusion = true;
         return true;
       }
     }

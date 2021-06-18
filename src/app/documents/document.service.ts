@@ -1,8 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { MaxLengthValidator } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { Document } from './document.model';
-import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -11,19 +10,55 @@ export class DocumentService {
   private documents: Document[] = [];
   private maxDocumentId = 0;
   documentSelectedEvent = new EventEmitter<Document>();
-  // documentChangedEvent = new EventEmitter<Document[]>();
   documentListChangedEvent = new Subject<Document[]>();
+  fetching = false;
 
-  constructor() {
-    this.documents = MOCKDOCUMENTS;
+  constructor(private http: HttpClient) {}
+
+  private updateDocumentsList(documents: Document[]) {
+    this.documents = documents;
     this.maxDocumentId = this.getMaxId();
+    this.documents.sort((firstEl, secondEl) => {
+      if (firstEl.name < secondEl.name) return -1;
+      if (firstEl.name > secondEl.name) return 1;
+      return 0;
+    });
+    this.documentListChangedEvent.next(this.documents.slice());
   }
 
-  getDocuments() : Document[] {
-    return this.documents.slice();
+  storeDocuments() {
+    this.http
+      .put<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json', this.documents)
+      .subscribe(
+        (documents: Document[]) => {
+          this.updateDocumentsList(documents);
+        },
+        (error: any) => {
+          console.log(error);
+        });
+  }
+
+  getDocuments(): void {
+    this.fetching = true;
+    this.http
+      .get<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json')
+      .subscribe(
+        (documents: Document[]) => {
+          this.updateDocumentsList(documents);
+          this.fetching = false;
+        },
+        (error: any) => {
+          this.fetching = false;
+          console.log(error);
+        }
+      );
   }
 
   getDocument(id: string): Document | null {
+    console.log(this.fetching);
+    // while (this.fetching) {
+      
+    // }
     for (const document of this.documents) {
       if (document.id === id)
         return document;
@@ -40,7 +75,7 @@ export class DocumentService {
       return;
     }
     this.documents.splice(pos, 1);
-    this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments();
   }
 
   addDocument(newDocument: Document): void {
@@ -50,7 +85,7 @@ export class DocumentService {
     this.maxDocumentId++;
     newDocument.id = this.maxDocumentId.toString();
     this.documents.push(newDocument);
-    this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments();
   }
 
   updateDocument(originalDocument: Document | null, newDocument: Document | null) {
@@ -63,7 +98,7 @@ export class DocumentService {
     }
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
-    this.documentListChangedEvent.next(this.documents.slice());
+    this.storeDocuments();
   }
 
   getMaxId(): number {
@@ -76,4 +111,5 @@ export class DocumentService {
     });   
     return maxId; 
   }
+
 }

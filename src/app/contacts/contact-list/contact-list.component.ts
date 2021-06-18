@@ -9,7 +9,7 @@ import { ContactService } from '../contact.service';
   styleUrls: ['./contact-list.component.css']
 })
 export class ContactListComponent implements OnInit, OnDestroy {
-
+  term = '';
   contacts: Contact[] = [];
   private subscription: Subscription = {} as Subscription;
 
@@ -31,6 +31,10 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   onSelected(contact: Contact) {
     this.contactService.contactSelectedEvent.emit(contact);
+  }
+
+  search(value: string) {
+    this.term = value;
   }
 
 }

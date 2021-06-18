@@ -1,7 +1,8 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Contact } from './contact.model';
-import { MOCKCONTACTS } from './MOCKCONTACTS';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +10,51 @@ import { MOCKCONTACTS } from './MOCKCONTACTS';
 export class ContactService {
   private contacts: Contact[] = [];
   private maxContactId = 0;
-  contactSelectedEvent = new EventEmitter<Contact>();
   contactListChangedEvent = new Subject<Contact[]>();
 
-  constructor() {
-    this.contacts = MOCKCONTACTS;
+  constructor(private http: HttpClient) {}
+
+  private updateContactsList(contacts: Contact[]) {
+    this.contacts = contacts;
     this.maxContactId = this.getMaxId();
+    this.contacts.sort((firstEl, secondEl) => {
+      if (firstEl.name < secondEl.name) return -1;
+      if (firstEl.name > secondEl.name) return 1;
+      return 0;
+    });
+    this.contactListChangedEvent.next(this.contacts.slice());
+  }
+
+  storeContacts() {
+    this.http
+      .put<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json', this.contacts)
+      .subscribe(
+        (contacts: Contact[]) => {
+          this.updateContactsList(contacts);
+        },
+        (error: any) => {
+          console.log(error);
+        });
+  }
+
+  fetchContacts() {
+    return this.http
+      .get<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json')
+      .pipe(
+        map((contacts: Contact[]) => {
+          return contacts.map((contact: Contact) => {
+            return {
+              ...contact,
+              phone: contact.phone ? contact.phone : '',
+              imageUrl: contact.imageUrl ? contact.imageUrl : '',
+              group: contact.group ? contact.group : [] as Contact[]
+            };
+          });
+        }),
+        tap((contacts: Contact[]) => {
+          this.updateContactsList(contacts);
+        })
+      );
   }
 
   getContacts(): Contact[] {
@@ -33,12 +73,12 @@ export class ContactService {
     if (!contact) {
       return;
     }
-    const pos = this.contacts.indexOf(contact);
+    const pos = this.contacts.map(e => {return e.id; }).indexOf(contact.id);
     if (pos < 0) {
       return;
     }
     this.contacts.splice(pos, 1);
-    this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
   }
 
   addContact(newContact: Contact): void {
@@ -48,20 +88,20 @@ export class ContactService {
     this.maxContactId++;
     newContact.id = this.maxContactId.toString();
     this.contacts.push(newContact);
-    this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
   }
 
   updateContact(originalContact: Contact | null, newContact: Contact | null) {
     if (!originalContact || !newContact) {
       return;
     }
-    let pos = this.contacts.indexOf(originalContact);
+    let pos = this.contacts.map(e => {return e.id; }).indexOf(originalContact.id);
     if (pos < 0) {
       return;
     }
     newContact.id = originalContact.id;
     this.contacts[pos] = newContact;
-    this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
   }
 
   getMaxId(): number {

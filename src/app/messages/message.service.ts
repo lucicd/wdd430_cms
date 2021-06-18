@@ -1,16 +1,50 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Message } from './message.model';
-import { MOCKMESSAGES } from './MOCKMESSAGES';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
   private messages: Message[] = [];
-  messageChangedEvetn = new EventEmitter<Message[]>();
+  private maxMessageId = 0;
+  messageListChangedEvent = new Subject<Message[]>();
 
-  constructor() {
-    this.messages = MOCKMESSAGES;
+  constructor(private http: HttpClient) { }
+
+  private updateMessagesList(messages: Message[]) {
+    this.messages = messages;
+    this.maxMessageId = this.getMaxId();
+    this.messages.sort((firstEl, secondEl) => {
+      if (+firstEl.id < +secondEl.id) return -1;
+      if (+firstEl.id > +secondEl.id) return 1;
+      return 0;
+    });
+    this.messageListChangedEvent.next(this.messages.slice());
+  }
+
+  storeMessages() {
+    this.http
+      .put<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json', this.messages)
+      .subscribe(
+        (messages: Message[]) => {
+          this.updateMessagesList(messages);
+        },
+        (error: any) => {
+          console.log(error);
+        });
+  }
+
+  fetchMessages() {
+    return this.http
+      .get<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json')
+      .pipe(
+        tap((messages: Message[]) => {
+          this.updateMessagesList(messages);
+        })
+      );
   }
 
   getMessages(): Message[] {
@@ -25,9 +59,25 @@ export class MessageService {
     return null;
   }
 
-  addMessage(message: Message) {
-    this.messages.push(message);
-    this.messageChangedEvetn.emit(this.messages.slice());
+  addMessage(newMessage: Message) {
+    if (!newMessage) {
+      return;
+    }
+    this.maxMessageId++;
+    newMessage.id = this.maxMessageId.toString();
+    this.messages.push(newMessage);
+    this.storeMessages();
+  }
+
+  getMaxId(): number {
+    let maxId = 0;
+    this.messages.forEach(element => {
+      let currentId = +element.id;
+      if (currentId > maxId) {
+        maxId = currentId;
+      }
+    });   
+    return maxId; 
   }
 
 }

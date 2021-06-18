@@ -1,5 +1,6 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Document } from './document.model';
 import { HttpClient } from '@angular/common/http';
 
@@ -9,11 +10,9 @@ import { HttpClient } from '@angular/common/http';
 export class DocumentService {
   private documents: Document[] = [];
   private maxDocumentId = 0;
-  documentSelectedEvent = new EventEmitter<Document>();
   documentListChangedEvent = new Subject<Document[]>();
-  fetching = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private updateDocumentsList(documents: Document[]) {
     this.documents = documents;
@@ -38,27 +37,30 @@ export class DocumentService {
         });
   }
 
-  getDocuments(): void {
-    this.fetching = true;
-    this.http
+  fetchDocuments() {
+    return this.http
       .get<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json')
-      .subscribe(
-        (documents: Document[]) => {
+      .pipe(
+        map((documents: Document[]) => {
+          return documents.map((document: Document) => {
+            return {
+              ...document,
+              description: document.description ? document.description : '',
+              children: document.children ? document.children : [] as Document[]
+            };
+          });
+        }),
+        tap((documents: Document[]) => {
           this.updateDocumentsList(documents);
-          this.fetching = false;
-        },
-        (error: any) => {
-          this.fetching = false;
-          console.log(error);
-        }
+        })
       );
   }
 
+  getDocuments(): Document[] {
+    return this.documents.slice();
+  }
+
   getDocument(id: string): Document | null {
-    console.log(this.fetching);
-    // while (this.fetching) {
-      
-    // }
     for (const document of this.documents) {
       if (document.id === id)
         return document;
@@ -70,7 +72,7 @@ export class DocumentService {
     if (!document) {
       return;
     }
-    const pos = this.documents.indexOf(document);
+    const pos = this.documents.map(e => {return e.id; }).indexOf(document.id);
     if (pos < 0) {
       return;
     }
@@ -92,7 +94,7 @@ export class DocumentService {
     if (!originalDocument || !newDocument) {
       return;
     }
-    let pos = this.documents.indexOf(originalDocument);
+    let pos = this.documents.map(e => {return e.id; }).indexOf(originalDocument.id);
     if (pos < 0) {
       return;
     }

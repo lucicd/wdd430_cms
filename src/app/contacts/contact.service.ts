@@ -27,12 +27,8 @@ export class ContactService {
           });
         })
       ).subscribe(
-        (contacts: Contact[]) => {
-          this.updateContactsList(contacts);
-        },
-        (error: any) => {
-          console.log(error);
-        }
+        (contacts: Contact[]) => this.updateContactsList(contacts),
+        (error: any) => console.log(error)
       );
   }
 
@@ -51,17 +47,12 @@ export class ContactService {
     this.http
       .put<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json', this.contacts)
       .subscribe(
-        (contacts: Contact[]) => {
-          this.updateContactsList(contacts);
-        },
-        (error: any) => {
-          console.log(error);
-        });
+        (contacts: Contact[]) => this.updateContactsList(contacts),
+        (error: any) => console.log(error)
+      );
   }
 
-  getContacts(): Contact[] {
-    return this.contacts.slice();
-  }
+  getContacts = (): Contact[] => this.contacts.slice()
 
   getContact(id: string): Contact | null {
     for (const contact of this.contacts) {

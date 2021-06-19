@@ -26,12 +26,8 @@ export class DocumentService {
           });
         })
       ).subscribe(
-        (documents: Document[]) => {
-          this.updateDocumentsList(documents);
-        },
-        (error: any) => {
-          console.log(error);
-        }
+        (documents: Document[]) => this.updateDocumentsList(documents),
+        (error: any) => console.log(error)
       );
   }
 
@@ -50,17 +46,12 @@ export class DocumentService {
     this.http
       .put<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json', this.documents)
       .subscribe(
-        (documents: Document[]) => {
-          this.updateDocumentsList(documents);
-        },
-        (error: any) => {
-          console.log(error);
-        });
+        (documents: Document[]) => this.updateDocumentsList(documents),
+        (error: any) => console.log(error)
+      );
   }
 
-  getDocuments(): Document[] {
-    return this.documents.slice();
-  }
+  getDocuments = (): Document[] => this.documents.slice()
 
   getDocument(id: string): Document | null {
     for (const document of this.documents) {

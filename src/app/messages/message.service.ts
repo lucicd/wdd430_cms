@@ -15,12 +15,8 @@ export class MessageService {
     this.http
       .get<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json')
       .subscribe(
-        (messages: Message[]) => {
-          this.updateMessagesList(messages);
-        },
-        (error: any) => {
-          console.log(error);
-        }
+        (messages: Message[]) => this.updateMessagesList(messages),
+        (error: any) => console.log(error)
       );
   }
 
@@ -39,17 +35,12 @@ export class MessageService {
     this.http
       .put<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json', this.messages)
       .subscribe(
-        (messages: Message[]) => {
-          this.updateMessagesList(messages);
-        },
-        (error: any) => {
-          console.log(error);
-        });
+        (messages: Message[]) => this.updateMessagesList(messages),
+        (error: any) => console.log(error)
+      );
   }
 
-  getMessages(): Message[] {
-    return this.messages.slice();
-  }
+  getMessages = (): Message[] => this.messages.slice()
 
   getMessage(id: string): Message | null {
     for (const message of this.messages) {

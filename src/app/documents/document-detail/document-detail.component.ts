@@ -24,15 +24,12 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.nativeWindow = this.windRefService.getNativeWindow();
     this.subscription = this.documentService.documentListChangedEvent.subscribe(
-      () => {
-        const id = this.activatedRoute.snapshot.params['id'];
-        this.document = this.documentService.getDocument(id) ?? {} as Document;
-      }
+      () => this.document = this.documentService
+        .getDocument(this.activatedRoute.snapshot.params['id']) ?? {} as Document
     );
     this.activatedRoute.params.subscribe(
-      (params: Params) => {
-        this.document = this.documentService.getDocument(params['id']) ?? {} as Document;
-      }
+      (params: Params) => this.document =
+        this.documentService.getDocument(params['id']) ?? {} as Document
     );
   }
 
@@ -47,8 +44,6 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/documents']);
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  ngOnDestroy = (): void => this.subscription.unsubscribe()
 
 }

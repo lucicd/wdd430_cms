@@ -20,15 +20,12 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription = this.contactService.contactListChangedEvent.subscribe(
-      () => {
-        const id = this.activatedRoute.snapshot.params['id'];
-        this.contact = this.contactService.getContact(id) ?? {} as Contact;
-      }
+      () => this.contact = this.contactService
+              .getContact(this.activatedRoute.snapshot.params['id']) ?? {} as Contact
     );
     this.activatedRoute.params.subscribe(
-      (params: Params) => {
-        this.contact = this.contactService.getContact(params['id']) ?? {} as Contact;
-      }
+      (params: Params) => this.contact = 
+        this.contactService.getContact(params['id']) ?? {} as Contact
     );
   }
 
@@ -37,8 +34,6 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/contacts']);
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  ngOnDestroy = (): void => this.subscription.unsubscribe()
 
 }

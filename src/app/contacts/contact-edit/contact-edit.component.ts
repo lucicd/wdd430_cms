@@ -25,48 +25,33 @@ export class ContactEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute) { }
 
     ngOnInit(): void {
+      const prepareData = (id: string) => {
+        if (!id) {
+          this.editMode = false;
+          return;
+        }
+        this.originalContact = this.contactService.getContact(id) ?? {} as Contact;
+        if (!this.originalContact) {
+          return;
+        }
+        this.editMode = true;
+        this.contact= JSON.parse(JSON.stringify(this.originalContact));
+        if (this.contact.group) {
+          this.groupContacts = JSON.parse(JSON.stringify(this.contact.group));
+        }
+      }
+      
       this.subscription = this.contactService.contactListChangedEvent.subscribe(
-        () => {
-          const id = this.activatedRoute.snapshot.params['id'];
-          if (!id) {
-            this.editMode = false;
-            return;
-          }
-          this.originalContact = this.contactService.getContact(id) ?? {} as Contact;
-          if (!this.originalContact) {
-            return;
-          }
-          this.editMode = true;
-          this.contact = JSON.parse(JSON.stringify(this.originalContact));
-          if (this.contact.group) {
-            this.groupContacts = JSON.parse(JSON.stringify(this.contact.group));
-          }
-        }
+        () => prepareData(this.activatedRoute.snapshot.params['id'])
       );
+
       this.activatedRoute.params.subscribe(
-        (params: Params) => {
-          const id=params['id'];
-          if (!id) {
-            this.editMode = false;
-            return;
-          }
-          this.originalContact = this.contactService.getContact(id);
-          if (!this.originalContact) {
-            return;
-          }
-          this.editMode = true;
-          this.contact= JSON.parse(JSON.stringify(this.originalContact));
-          
-          if (this.contact.group) {
-            this.groupContacts = JSON.parse(JSON.stringify(this.contact.group));
-          }
-        }
+        (params: Params) => prepareData(params['id'])
       );
+
     }
 
-  onCancel() {
-    this.router.navigate(['contacts', this.contact.id]);
-  }
+  onCancel = () => this.router.navigate(['contacts', this.contact.id])
 
   onSubmit(form: NgForm) {
     const value = form.value;
@@ -122,8 +107,6 @@ export class ContactEditComponent implements OnInit, OnDestroy {
     this.groupContacts.splice(index, 1);
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  ngOnDestroy = (): void => this.subscription.unsubscribe()
 
 }

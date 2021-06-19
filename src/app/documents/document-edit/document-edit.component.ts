@@ -22,41 +22,29 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
+    const prepareData = (id:string) => {
+      if (!id) {
+        this.editMode = false;
+        return;
+      }
+      this.originalDocument = this.documentService.getDocument(id) ?? {} as Document;
+      if (!this.originalDocument) {
+        return;
+      }
+      this.editMode = true;
+      this.document = JSON.parse(JSON.stringify(this.originalDocument));
+    }
+
     this.subscription = this.documentService.documentListChangedEvent.subscribe(
-      () => {
-        const id = this.activatedRoute.snapshot.params['id'];
-        if (!id) {
-          this.editMode = false;
-          return;
-        }
-        this.originalDocument = this.documentService.getDocument(id) ?? {} as Document;
-        if (!this.originalDocument) {
-          return;
-        }
-        this.editMode = true;
-        this.document = JSON.parse(JSON.stringify(this.originalDocument));
-      }
+      () => prepareData(this.activatedRoute.snapshot.params['id'])
     );
+
     this.activatedRoute.params.subscribe(
-      (params: Params) => {
-        const id=params['id'];
-        if (!id) {
-          this.editMode = false;
-          return;
-        }
-        this.originalDocument = this.documentService.getDocument(id);
-        if (!this.originalDocument) {
-          return;
-        }
-        this.editMode = true;
-        this.document = JSON.parse(JSON.stringify(this.originalDocument));
-      }
+      (params: Params) => prepareData(params['id'])
     );
   }
 
-  onCancel() {
-    this.router.navigate(['/documents']);
-  }
+  onCancel = () => this.router.navigate(['/documents'])
 
   onSubmit(form: NgForm) {
     const value = form.value;
@@ -76,8 +64,6 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     this.router.navigate(['/documents']);
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  ngOnDestroy = (): void => this.subscription.unsubscribe()
 
 }

@@ -23,13 +23,12 @@ export class DocumentDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.nativeWindow = this.windRefService.getNativeWindow();
-    const id = this.activatedRoute.snapshot.params['id'];
     this.subscription = this.documentService.documentListChangedEvent.subscribe(
       () => {
+        const id = this.activatedRoute.snapshot.params['id'];
         this.document = this.documentService.getDocument(id) ?? {} as Document;
       }
     );
-    this.document = this.documentService.getDocument(id) ?? {} as Document;
     this.activatedRoute.params.subscribe(
       (params: Params) => {
         this.document = this.documentService.getDocument(params['id']) ?? {} as Document;

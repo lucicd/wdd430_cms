@@ -19,9 +19,9 @@ export class ContactDetailComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
-    const id = this.activatedRoute.snapshot.params['id'];
     this.subscription = this.contactService.contactListChangedEvent.subscribe(
       () => {
+        const id = this.activatedRoute.snapshot.params['id'];
         this.contact = this.contactService.getContact(id) ?? {} as Contact;
       }
     );

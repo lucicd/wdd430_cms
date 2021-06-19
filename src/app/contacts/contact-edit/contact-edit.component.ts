@@ -25,16 +25,28 @@ export class ContactEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute) { }
 
     ngOnInit(): void {
-      const id = this.activatedRoute.snapshot.params['id'];
       this.subscription = this.contactService.contactListChangedEvent.subscribe(
         () => {
-          this.contact = this.contactService.getContact(id) ?? {} as Contact;
+          const id = this.activatedRoute.snapshot.params['id'];
+          if (!id) {
+            this.editMode = false;
+            return;
+          }
+          this.originalContact = this.contactService.getContact(id) ?? {} as Contact;
+          if (!this.originalContact) {
+            return;
+          }
+          this.editMode = true;
+          this.contact = JSON.parse(JSON.stringify(this.originalContact));
+          if (this.contact.group) {
+            this.groupContacts = JSON.parse(JSON.stringify(this.contact.group));
+          }
         }
       );
       this.activatedRoute.params.subscribe(
         (params: Params) => {
+          const id=params['id'];
           if (!id) {
-            const id=params['id'];
             this.editMode = false;
             return;
           }

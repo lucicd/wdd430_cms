@@ -11,7 +11,7 @@ import { DocumentService } from '../document.service';
   styleUrls: ['./document-edit.component.css']
 })
 export class DocumentEditComponent implements OnInit, OnDestroy {
-  originalDocumnet: Document | null = <Document>{};
+  originalDocument: Document | null = <Document>{};
   document: Document = <Document>{};
   private subscription: Subscription = {} as Subscription;
   editMode: boolean = false;
@@ -22,10 +22,19 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
-    const id = this.activatedRoute.snapshot.params['id'];
     this.subscription = this.documentService.documentListChangedEvent.subscribe(
       () => {
-        this.document = this.documentService.getDocument(id) ?? {} as Document;
+        const id = this.activatedRoute.snapshot.params['id'];
+        if (!id) {
+          this.editMode = false;
+          return;
+        }
+        this.originalDocument = this.documentService.getDocument(id) ?? {} as Document;
+        if (!this.originalDocument) {
+          return;
+        }
+        this.editMode = true;
+        this.document = JSON.parse(JSON.stringify(this.originalDocument));
       }
     );
     this.activatedRoute.params.subscribe(
@@ -35,12 +44,12 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
           this.editMode = false;
           return;
         }
-        this.originalDocumnet = this.documentService.getDocument(id);
-        if (!this.originalDocumnet) {
+        this.originalDocument = this.documentService.getDocument(id);
+        if (!this.originalDocument) {
           return;
         }
         this.editMode = true;
-        this.document = JSON.parse(JSON.stringify(this.originalDocumnet));
+        this.document = JSON.parse(JSON.stringify(this.originalDocument));
       }
     );
   }
@@ -60,7 +69,7 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     );
 
     if (this.editMode === true) {
-      this.documentService.updateDocument(this.originalDocumnet, newDocument);
+      this.documentService.updateDocument(this.originalDocument, newDocument);
     } else {
       this.documentService.addDocument(newDocument);
     }

@@ -51,7 +51,7 @@ export class ContactEditComponent implements OnInit, OnDestroy {
 
     }
 
-  onCancel = () => this.router.navigate(['contacts', this.contact.id])
+  onCancel = () => this.router.navigate(['/contacts'])
 
   onSubmit(form: NgForm) {
     const value = form.value;

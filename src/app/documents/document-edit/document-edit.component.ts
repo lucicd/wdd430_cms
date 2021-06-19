@@ -44,7 +44,7 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     );
   }
 
-  onCancel = () => this.router.navigate(['/documents'])
+  onCancel = () => this.router.navigate(['documents', this.document.id])
 
   onSubmit(form: NgForm) {
     const value = form.value;
@@ -61,7 +61,7 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     } else {
       this.documentService.addDocument(newDocument);
     }
-    this.router.navigate(['/documents']);
+    this.router.navigate(['documents', newDocument.id]);
   }
 
   ngOnDestroy = (): void => this.subscription.unsubscribe()

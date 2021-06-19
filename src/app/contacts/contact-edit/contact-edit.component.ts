@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Contact } from '../contact.model';
 import { ContactService } from '../contact.service';
 
@@ -9,9 +10,10 @@ import { ContactService } from '../contact.service';
   templateUrl: './contact-edit.component.html',
   styleUrls: ['./contact-edit.component.css']
 })
-export class ContactEditComponent implements OnInit {
+export class ContactEditComponent implements OnInit, OnDestroy {
   originalContact: Contact | null = <Contact>{};
   contact: Contact = <Contact>{};
+  private subscription: Subscription = {} as Subscription;
   groupContacts: Contact[] = [];
   editMode: boolean = false;
   currentInclusion: boolean = false;
@@ -23,10 +25,16 @@ export class ContactEditComponent implements OnInit {
     private activatedRoute: ActivatedRoute) { }
 
     ngOnInit(): void {
+      const id = this.activatedRoute.snapshot.params['id'];
+      this.subscription = this.contactService.contactListChangedEvent.subscribe(
+        () => {
+          this.contact = this.contactService.getContact(id) ?? {} as Contact;
+        }
+      );
       this.activatedRoute.params.subscribe(
         (params: Params) => {
-          const id=params['id'];
           if (!id) {
+            const id=params['id'];
             this.editMode = false;
             return;
           }
@@ -100,6 +108,10 @@ export class ContactEditComponent implements OnInit {
        return;
     }
     this.groupContacts.splice(index, 1);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
 }

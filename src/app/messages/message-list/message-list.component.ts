@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { ContactService } from 'src/app/contacts/contact.service';
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
 
@@ -9,7 +10,6 @@ import { MessageService } from '../message.service';
   styleUrls: ['./message-list.component.css']
 })
 export class MessageListComponent implements OnInit, OnDestroy {
-  
   messages: Message[] = [];
   private subscription: Subscription = {} as Subscription;
 
@@ -21,7 +21,7 @@ export class MessageListComponent implements OnInit, OnDestroy {
         this.messages = messages
       }
     );
-    this.messageService.fetchMessages().subscribe();
+    this.messages = this.messageService.getMessages();
   }
 
   onAddMessage(message: Message) {

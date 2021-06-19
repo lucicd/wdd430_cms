@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Document } from './document.model';
 import { HttpClient } from '@angular/common/http';
 
@@ -12,14 +12,35 @@ export class DocumentService {
   private maxDocumentId = 0;
   documentListChangedEvent = new Subject<Document[]>();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.http
+      .get<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json')
+      .pipe(
+        map((documents: Document[]) => {
+          return documents.map((document: Document) => {
+            return {
+              ...document,
+              description: document.description ? document.description : '',
+              children: document.children ? document.children : [] as Document[]
+            };
+          });
+        })
+      ).subscribe(
+        (documents: Document[]) => {
+          this.updateDocumentsList(documents);
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+  }
 
   private updateDocumentsList(documents: Document[]) {
     this.documents = documents;
     this.maxDocumentId = this.getMaxId();
     this.documents.sort((firstEl, secondEl) => {
-      if (firstEl.name < secondEl.name) return -1;
-      if (firstEl.name > secondEl.name) return 1;
+      if (+firstEl.id < +secondEl.id) return -1;
+      if (+firstEl.id > +secondEl.id) return 1;
       return 0;
     });
     this.documentListChangedEvent.next(this.documents.slice());
@@ -35,25 +56,6 @@ export class DocumentService {
         (error: any) => {
           console.log(error);
         });
-  }
-
-  fetchDocuments() {
-    return this.http
-      .get<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json')
-      .pipe(
-        map((documents: Document[]) => {
-          return documents.map((document: Document) => {
-            return {
-              ...document,
-              description: document.description ? document.description : '',
-              children: document.children ? document.children : [] as Document[]
-            };
-          });
-        }),
-        tap((documents: Document[]) => {
-          this.updateDocumentsList(documents);
-        })
-      );
   }
 
   getDocuments(): Document[] {

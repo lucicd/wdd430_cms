@@ -1,6 +1,6 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Contact } from './contact.model';
 import { HttpClient } from '@angular/common/http';
 
@@ -12,14 +12,36 @@ export class ContactService {
   private maxContactId = 0;
   contactListChangedEvent = new Subject<Contact[]>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.http
+      .get<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json')
+      .pipe(
+        map((contacts: Contact[]) => {
+          return contacts.map((contact: Contact) => {
+            return {
+              ...contact,
+              phone: contact.phone ? contact.phone : '',
+              imageUrl: contact.imageUrl ? contact.imageUrl : '',
+              group: contact.group ? contact.group : [] as Contact[]
+            };
+          });
+        })
+      ).subscribe(
+        (contacts: Contact[]) => {
+          this.updateContactsList(contacts);
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+  }
 
   private updateContactsList(contacts: Contact[]) {
     this.contacts = contacts;
     this.maxContactId = this.getMaxId();
     this.contacts.sort((firstEl, secondEl) => {
-      if (firstEl.name < secondEl.name) return -1;
-      if (firstEl.name > secondEl.name) return 1;
+      if (+firstEl.id < +secondEl.id) return -1;
+      if (+firstEl.id > +secondEl.id) return 1;
       return 0;
     });
     this.contactListChangedEvent.next(this.contacts.slice());
@@ -35,26 +57,6 @@ export class ContactService {
         (error: any) => {
           console.log(error);
         });
-  }
-
-  fetchContacts() {
-    return this.http
-      .get<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json')
-      .pipe(
-        map((contacts: Contact[]) => {
-          return contacts.map((contact: Contact) => {
-            return {
-              ...contact,
-              phone: contact.phone ? contact.phone : '',
-              imageUrl: contact.imageUrl ? contact.imageUrl : '',
-              group: contact.group ? contact.group : [] as Contact[]
-            };
-          });
-        }),
-        tap((contacts: Contact[]) => {
-          this.updateContactsList(contacts);
-        })
-      );
   }
 
   getContacts(): Contact[] {

@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { Message } from './message.model';
 
 @Injectable({
@@ -12,7 +11,18 @@ export class MessageService {
   private maxMessageId = 0;
   messageListChangedEvent = new Subject<Message[]>();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { 
+    this.http
+      .get<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json')
+      .subscribe(
+        (messages: Message[]) => {
+          this.updateMessagesList(messages);
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+  }
 
   private updateMessagesList(messages: Message[]) {
     this.messages = messages;
@@ -35,16 +45,6 @@ export class MessageService {
         (error: any) => {
           console.log(error);
         });
-  }
-
-  fetchMessages() {
-    return this.http
-      .get<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json')
-      .pipe(
-        tap((messages: Message[]) => {
-          this.updateMessagesList(messages);
-        })
-      );
   }
 
   getMessages(): Message[] {

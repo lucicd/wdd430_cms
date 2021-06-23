@@ -2,32 +2,27 @@
 var express = require('express');
 var path = require('path');
 var http = require('http');
-var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+// Define root and index paths
+const rootPath = path.join(__dirname, 'dist/cms');
+const indexPath = path.join(rootPath, 'index.html');
+
 // import the routing file to handle the default (index) route
-var index = require('./server/routes/app');
+var index = require('./server/routes/app')(indexPath);
 const { applySourceSpanToExpressionIfNeeded } = require('@angular/compiler/src/output/output_ast');
 
 // ... ADD CODE TO IMPORT YOUR ROUTING FILES HERE ... 
-const messageRoutes = require("./server/routes/messages");
-const contactRoutes = require("./server/routes/contacts");
-const documentsRoutes = require("./server/routes/documents");
+const messageRoutes = require('./server/routes/messages');
+const contactRoutes = require('./server/routes/contacts');
+const documentsRoutes = require('./server/routes/documents');
 
 var app = express(); // create an instance of express
 
 // Tell express to use the following parsers for POST data
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({
-//   extended: false
-// }));
-
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: false
-}));
-
+app.use(express.urlencoded({extended: false}));
 
 app.use(cookieParser());
 
@@ -49,18 +44,19 @@ app.use((req, res, next) => {
 
 // Tell express to use the specified director as the
 // root directory for your web site
-app.use(express.static(path.join(__dirname, 'dist/cms')));
+app.use(express.static(rootPath));
 
 // Tell express to map the default route ('/') to the index route
-app.use('/', index.router);
+// app.use('/', index.router);
+app.use('/', index);
 
 // ... ADD YOUR CODE TO MAP YOUR URL'S TO ROUTING FILES HERE ...
-app.use("/messages", messageRoutes);
-app.use("/contacts", contactRoutes);
-app.use("/documents", documentsRoutes);
+app.use('/messages', messageRoutes);
+app.use('/contacts', contactRoutes);
+app.use('/documents', documentsRoutes);
 
 // Tell express to map all other non-defined routes back to the index page
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, index.path)));
+app.get('*', (req, res) => res.sendFile(indexPath));
 
 // Define the port address and tell express to use this port
 const port = process.env.PORT || '3000';

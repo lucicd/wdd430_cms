@@ -4,6 +4,7 @@ var path = require('path');
 var http = require('http');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
 
 // Define root and index paths
 const rootPath = path.join(__dirname, 'dist/cms');
@@ -17,6 +18,19 @@ const { applySourceSpanToExpressionIfNeeded } = require('@angular/compiler/src/o
 const messageRoutes = require('./server/routes/messages');
 const contactRoutes = require('./server/routes/contacts');
 const documentsRoutes = require('./server/routes/documents');
+
+
+// Establish a connection to the mongo database.
+mongoose.connect('mongodb://localhost:27017/cms',
+  { useNewUrlParser: true, useUnifiedTopology: true }, (err, res) => {
+    if (err) {
+      console.log('Connection failed: ' + err);
+    }
+    else {
+      console.log('Connected to database!');
+    }
+  }
+);
 
 var app = express(); // create an instance of express
 

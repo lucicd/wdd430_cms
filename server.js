@@ -1,10 +1,11 @@
 // Get dependencies
-var express = require('express');
-var path = require('path');
-var http = require('http');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var mongoose = require('mongoose');
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const debug = require('debug')('cms-app');
 
 // Define root and index paths
 const rootPath = path.join(__dirname, 'dist/cms');

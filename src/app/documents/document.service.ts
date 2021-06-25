@@ -14,19 +14,9 @@ export class DocumentService {
 
   constructor(private http: HttpClient) {
     this.http
-      .get<Document[]>('https://drazen-cms-default-rtdb.firebaseio.com/documents.json')
-      .pipe(
-        map((documents: Document[]) => {
-          return documents.map((document: Document) => {
-            return {
-              ...document,
-              description: document.description ? document.description : '',
-              children: document.children ? document.children : [] as Document[]
-            };
-          });
-        })
-      ).subscribe(
-        (documents: Document[]) => this.updateDocumentsList(documents),
+      .get<{message: string, documents: Document[]}>('http://localhost:3000/documents')
+      .subscribe(
+        (data: {message: string, documents: Document[]}) => this.updateDocumentsList(data.documents),
         (error: any) => console.log(error)
       );
   }

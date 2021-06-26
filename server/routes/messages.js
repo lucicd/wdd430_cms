@@ -10,7 +10,14 @@ router.get('/', (req, res, next) => {
     .then(messages => {
       res.status(200).json({
         message: 'Messages fetched successfully',
-        messages: messages
+        messages: messages.map(
+          e => { return {
+            id: e.id,
+            subject: e.subject,
+            msgText: e.msgText,
+            sender: e.sender.id
+          }}
+        )
       });
     })
     .catch(error => {

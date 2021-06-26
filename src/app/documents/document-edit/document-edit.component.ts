@@ -57,11 +57,17 @@ export class DocumentEditComponent implements OnInit, OnDestroy {
     );
 
     if (this.editMode === true) {
-      this.documentService.updateDocument(this.originalDocument, newDocument);
+      this.documentService.updateDocument(
+        this.originalDocument, 
+        newDocument,
+        id => this.router.navigate(['documents', id])
+        );
     } else {
-      this.documentService.addDocument(newDocument);
+      this.documentService.addDocument(
+        newDocument, 
+        id => this.router.navigate(['documents', id])
+      );
     }
-    this.router.navigate(['documents', newDocument.id]);
   }
 
   ngOnDestroy = (): void => this.subscription.unsubscribe()

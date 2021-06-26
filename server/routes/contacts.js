@@ -10,7 +10,26 @@ router.get('/', (req, res, next) => {
     .then(contacts => {
       res.status(200).json({
         message: 'Contacts fetched successfully',
-        contacts: contacts
+        contacts: contacts.map(
+          e => { return {
+              id: e.id,
+              name: e.name,
+              email: e.email,
+              phone: e.phone,
+              imageUrl: e.imageUrl,
+              group: e.group ? e.group.map(
+                e => { return {
+                    id: e.id,
+                    name: e.name,
+                    email: e.email,
+                    phone: e.phone,
+                    imageUrl: e.imageUrl
+                  }
+                }
+              ) : null
+            }
+          }
+        )
       });
     })
     .catch(error => {

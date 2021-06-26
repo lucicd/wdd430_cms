@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Contact } from 'src/app/contacts/contact.model';
 import { ContactService } from 'src/app/contacts/contact.service';
-import {Message } from '../message.model';
+import { Message } from '../message.model';
 
 @Component({
   selector: 'cms-message-item',

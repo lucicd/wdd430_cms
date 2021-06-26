@@ -13,9 +13,9 @@ export class MessageService {
 
   constructor(private http: HttpClient) { 
     this.http
-      .get<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json')
+      .get<{message: string, messages: Message[]}>('http://localhost:3000/messages')
       .subscribe(
-        (messages: Message[]) => this.updateMessagesList(messages),
+        (data: {message: string, messages: Message[]}) => this.updateMessagesList(data.messages),
         (error: any) => console.log(error)
       );
   }
@@ -33,7 +33,7 @@ export class MessageService {
 
   storeMessages() {
     this.http
-      .put<Message[]>('https://drazen-cms-default-rtdb.firebaseio.com/messages.json', this.messages)
+      .put<Message[]>('http://localhost:3000/messages', this.messages)
       .subscribe(
         (messages: Message[]) => this.updateMessagesList(messages),
         (error: any) => console.log(error)

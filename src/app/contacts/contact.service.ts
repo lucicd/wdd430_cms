@@ -14,20 +14,9 @@ export class ContactService {
 
   constructor(private http: HttpClient) {
     this.http
-      .get<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json')
-      .pipe(
-        map((contacts: Contact[]) => {
-          return contacts.map((contact: Contact) => {
-            return {
-              ...contact,
-              phone: contact.phone ? contact.phone : '',
-              imageUrl: contact.imageUrl ? contact.imageUrl : '',
-              group: contact.group ? contact.group : [] as Contact[]
-            };
-          });
-        })
-      ).subscribe(
-        (contacts: Contact[]) => this.updateContactsList(contacts),
+      .get<{message: string, contacts: Contact[]}>('http://localhost:3000/contacts')
+      .subscribe(
+        (data: {message: string, contacts: Contact[]}) => this.updateContactsList(data.contacts),
         (error: any) => console.log(error)
       );
   }
@@ -45,7 +34,7 @@ export class ContactService {
 
   storeContacts() {
     this.http
-      .put<Contact[]>('https://drazen-cms-default-rtdb.firebaseio.com/contacts.json', this.contacts)
+      .put<Contact[]>('http://localhost:3000/contacts', this.contacts)
       .subscribe(
         (contacts: Contact[]) => this.updateContactsList(contacts),
         (error: any) => console.log(error)

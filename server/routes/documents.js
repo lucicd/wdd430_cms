@@ -9,7 +9,15 @@ router.get('/', (req, res, next) => {
     .then(documents => {
       res.status(200).json({
         message: 'Document fetched successfully',
-        documents: documents
+        documents: documents.map(
+          e => { return {
+            id: e.id,
+            name: e.name,
+            description: e.description,
+            url: e.url,
+            children: e.children
+          }}
+        )
       });
     })
     .catch(error => {
@@ -38,10 +46,10 @@ router.post('/', (req, res, next) => {
       });
     })
     .catch(error => {
-       res.status(500).json({
-          message: 'An error occurred',
-          error: error
-        });
+      res.status(500).json({
+        message: 'An error occurred',
+        error: error
+      });
     });
 });
 
@@ -59,10 +67,10 @@ router.put('/:id', (req, res, next) => {
           })
         })
         .catch(error => {
-           res.status(500).json({
-           message: 'An error occurred',
-           error: error
-         });
+          res.status(500).json({
+            message: 'An error occurred',
+            error: error
+          });
         });
     })
     .catch(error => {

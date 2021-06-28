@@ -18,12 +18,17 @@ export class MessageEditComponent implements OnInit {
   }
 
   onSendMessage() {
-    const newMessgae = new Message('101',
+    const newMessgae = new Message(
+      '101',
       this.subject.nativeElement.value,
       this.msgText.nativeElement.value,
-      this.currentSender);
+      this.currentSender
+    );
 
-    this.messageService.addMessage(newMessgae);
+    this.messageService.addMessage(
+      newMessgae,
+      id => {}
+    );
     
     this.onClear();
   }

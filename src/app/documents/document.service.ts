@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { Document } from './document.model';
-import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -59,7 +59,7 @@ export class DocumentService {
     }
     newDocument.id = '';
 
-    this.http.post<{message: string, document: Document}>('http://localhost:3000/documents', newDocument)
+    this.http.post<{ message: string, document: Document }>('http://localhost:3000/documents', newDocument)
       .subscribe(
         (data: {message: string, document: Document}) => {
           newDocument.id = data.document.id;

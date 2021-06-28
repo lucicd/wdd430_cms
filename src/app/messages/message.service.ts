@@ -8,21 +8,21 @@ import { Message } from './message.model';
 })
 export class MessageService {
   private messages: Message[] = [];
-  private maxMessageId = 0;
   messageListChangedEvent = new Subject<Message[]>();
 
   constructor(private http: HttpClient) { 
     this.http
       .get<{message: string, messages: Message[]}>('http://localhost:3000/messages')
       .subscribe(
-        (data: {message: string, messages: Message[]}) => this.updateMessagesList(data.messages),
+        (data: {message: string, messages: Message[]}) => {
+          this.messages = data.messages;
+          this.sortAndSend();
+        },
         (error: any) => console.log(error)
       );
   }
 
-  private updateMessagesList(messages: Message[]) {
-    this.messages = messages;
-    this.maxMessageId = this.getMaxId();
+  private sortAndSend() {
     this.messages.sort((firstEl, secondEl) => {
       if (+firstEl.id < +secondEl.id) return -1;
       if (+firstEl.id > +secondEl.id) return 1;
@@ -31,44 +31,27 @@ export class MessageService {
     this.messageListChangedEvent.next(this.messages.slice());
   }
 
-  storeMessages() {
-    this.http
-      .put<Message[]>('http://localhost:3000/messages', this.messages)
-      .subscribe(
-        (messages: Message[]) => this.updateMessagesList(messages),
-        (error: any) => console.log(error)
-      );
-  }
-
   getMessages = (): Message[] => this.messages.slice()
 
   getMessage(id: string): Message | null {
-    for (const message of this.messages) {
-      if (message.id === id)
-        return message;
-    }
-    return null;
+    const pos = this.messages.findIndex(e => e.id === id);
+    return pos < 0 ? null : this.messages[pos];
   }
 
-  addMessage(newMessage: Message) {
+  addMessage(newMessage: Message, callback: (id: string) => any): void {
     if (!newMessage) {
       return;
     }
-    this.maxMessageId++;
-    newMessage.id = this.maxMessageId.toString();
-    this.messages.push(newMessage);
-    this.storeMessages();
-  }
+    newMessage.id = '';
 
-  getMaxId(): number {
-    let maxId = 0;
-    this.messages.forEach(element => {
-      let currentId = +element.id;
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    });   
-    return maxId; 
+    this.http.post<{ message: string, createdMessage: Message }>('http://localhost:3000/messages', newMessage)
+      .subscribe(
+        (data: {message: string, createdMessage: Message}) => {
+          newMessage.id = data.createdMessage.id;
+          this.messages.push(newMessage);
+          this.sortAndSend();
+          callback(data.createdMessage.id);
+        }
+      );
   }
-
 }

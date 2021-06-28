@@ -16,14 +16,15 @@ export class ContactService {
     this.http
       .get<{message: string, contacts: Contact[]}>('http://localhost:3000/contacts')
       .subscribe(
-        (data: {message: string, contacts: Contact[]}) => this.updateContactsList(data.contacts),
+        (data: {message: string, contacts: Contact[]}) => {
+          this.contacts = data.contacts;
+          this.sortAndSend();
+        },
         (error: any) => console.log(error)
       );
   }
 
-  private updateContactsList(contacts: Contact[]) {
-    this.contacts = contacts;
-    this.maxContactId = this.getMaxId();
+  private sortAndSend() {
     this.contacts.sort((firstEl, secondEl) => {
       if (+firstEl.id < +secondEl.id) return -1;
       if (+firstEl.id > +secondEl.id) return 1;
@@ -32,69 +33,62 @@ export class ContactService {
     this.contactListChangedEvent.next(this.contacts.slice());
   }
 
-  storeContacts() {
-    this.http
-      .put<Contact[]>('http://localhost:3000/contacts', this.contacts)
-      .subscribe(
-        (contacts: Contact[]) => this.updateContactsList(contacts),
-        (error: any) => console.log(error)
-      );
-  }
-
   getContacts = (): Contact[] => this.contacts.slice()
 
   getContact(id: string): Contact | null {
-    for (const contact of this.contacts) {
-      if (contact.id === id)
-        return contact;
-    }
-    return null;
+    const pos = this.contacts.findIndex(e => e.id === id);
+    return pos < 0 ? null : this.contacts[pos];
   }
 
   deleteContact(contact: Contact) {
     if (!contact) {
       return;
     }
-    const pos = this.contacts.map(e => {return e.id; }).indexOf(contact.id);
+    const pos = this.contacts.findIndex(e => e.id === contact.id);
     if (pos < 0) {
       return;
     }
-    this.contacts.splice(pos, 1);
-    this.storeContacts();
+    this.http.delete<{message: string}>('http://localhost:3000/contacts/' + contact.id)
+      .subscribe((data: {message: string}) => {
+        this.contacts.splice(pos, 1);
+        this.sortAndSend();;
+      });
   }
 
-  addContact(newContact: Contact): void {
+  addContact(newContact: Contact, callback: (id: string) => any): void {
     if (!newContact) {
       return;
     }
-    this.maxContactId++;
-    newContact.id = this.maxContactId.toString();
-    this.contacts.push(newContact);
-    this.storeContacts();
+    newContact.id = '';
+
+    this.http.post<{ message: string, contact: Contact }>('http://localhost:3000/contacts', newContact)
+      .subscribe(
+        (data: {message: string, contact: Contact}) => {
+          newContact.id = data.contact.id;
+          this.contacts.push(newContact);
+          this.sortAndSend();
+          callback(data.contact.id);
+        }
+      );
   }
 
-  updateContact(originalContact: Contact | null, newContact: Contact | null) {
+  updateContact(originalContact: Contact | null, newContact: Contact | null, callback: (id: string) => any) {
     if (!originalContact || !newContact) {
       return;
     }
-    let pos = this.contacts.map(e => {return e.id; }).indexOf(originalContact.id);
+    const pos = this.contacts.findIndex(e => e.id === originalContact.id);
     if (pos < 0) {
       return;
     }
     newContact.id = originalContact.id;
     this.contacts[pos] = newContact;
-    this.storeContacts();
+    this.http.put<{message: string}>('http://localhost:3000/contacts/' + originalContact.id, newContact)
+      .subscribe(
+        (data: {message: string}) => {
+          this.contacts[pos] = newContact;
+          this.sortAndSend();
+          callback(originalContact.id);
+        }
+      );
   }
-
-  getMaxId(): number {
-    let maxId = 0;
-    this.contacts.forEach(element => {
-      let currentId = +element.id;
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    });   
-    return maxId; 
-  }
-
 }

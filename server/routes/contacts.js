@@ -4,6 +4,59 @@ const Contact = require('../models/contact');
 
 const router = express.Router();
 
+function saveContact(contact, res) {
+  contact.save()
+    .then(createdContact => {
+      res.status(201).json({
+        message: 'Contact added successfully',
+        contact: createdContact
+      });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: 'An error occurred',
+        error: error
+      });
+    });
+}
+
+function updateContact(contact, res) {
+  Contact.updateOne({ id: contact.id }, contact)
+    .then(result => {
+      res.status(204).json({
+        message: 'Contact updated successfully'
+      });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: 'An error occured',
+        error: error
+      });
+    });
+}
+
+function getObjectIdForGroups(contact, group, res, callback) {
+  let itemsProcessed = 0;
+  let newGroup = [];
+  group.forEach((item, index, array) => {
+    Contact.findOne({ id: item.id })
+      .then(groupContact => {
+        newGroup.push(groupContact);
+        itemsProcessed++;
+        if (itemsProcessed === array.length) {
+          contact.group = newGroup;
+          callback();
+        }
+      })
+      .catch(error => {
+        res.status(500).json({
+          message: 'Group contact not found',
+          error: { message: 'Group contact not found' }
+        });
+      });
+  });
+}
+
 router.get('/', (req, res, next) => {
   Contact.find()
     .populate('group')
@@ -41,51 +94,38 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-  const maxContactId = sequenceGenerator.nextId('contacts');
-
   const contact = new Contact({
-    id: maxContactId,
+    id: sequenceGenerator.nextId('contacts'),
     name: req.body.name,
     email: req.body.email,
     phone: req.body.phone,
     imageUrl: req.body.imageUrl
   });
 
-  contact.save()
-    .then(createdContact => {
-      res.status(201).json({
-        message: 'Contact added successfully',
-        contact: createdContact
-      });
-    })
-    .catch(error => {
-       res.status(500).json({
-          message: 'An error occurred',
-          error: error
-        });
+  if (req.body.group) {
+    getObjectIdForGroups(contact, req.body.group, res, () => {
+      saveContact(contact, res);
     });
+  } else {
+    saveContact(contact, res);
+  }
 });
 
 router.put('/:id', (req, res, next) => {
   Contact.findOne({ id: req.params.id })
     .then(contact => {
-      contact.name = req.body.name,
-      contact.email = req.body.email,
-      contact.phone = req.body.phone,
-      contact.imageUrl = req.body.imageUrl
+      contact.name = req.body.name;
+      contact.email = req.body.email;
+      contact.phone = req.body.phone;
+      contact.imageUrl = req.body.imageUrl;
 
-      Contact.updateOne({ id: req.params.id }, contact)
-        .then(result => {
-          res.status(204).json({
-            message: 'Contact updated successfully'
-          })
-        })
-        .catch(error => {
-           res.status(500).json({
-           message: 'An error occurred',
-           error: error
-         });
+      if (req.body.group) {
+        getObjectIdForGroups(contact, req.body.group, res, () => {
+          updateContact(contact, res);
         });
+      } else {
+        updateContact(contact, res);
+      }
     })
     .catch(error => {
       res.status(500).json({

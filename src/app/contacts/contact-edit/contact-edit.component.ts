@@ -65,11 +65,17 @@ export class ContactEditComponent implements OnInit, OnDestroy {
     );
 
     if (this.editMode === true) {
-      this.contactService.updateContact(this.originalContact, newContact);
+      this.contactService.updateContact(
+        this.originalContact, 
+        newContact,
+        id => this.router.navigate(['contacts', id])
+      );
     } else {
-      this.contactService.addContact(newContact);
+      this.contactService.addContact(
+        newContact,
+        id => this.router.navigate(['contacts', id])
+      );
     }
-    this.router.navigate(['contacts', newContact.id]);
   }
 
   private isInvalidContact(newContact: Contact | null) {

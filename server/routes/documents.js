@@ -8,7 +8,7 @@ router.get('/', (req, res, next) => {
   Document.find()
     .then(documents => {
       res.status(200).json({
-        message: 'Document fetched successfully',
+        message: 'Documents fetched successfully',
         documents: documents.map(
           e => { return {
             id: e.id,

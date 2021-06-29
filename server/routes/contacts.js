@@ -60,30 +60,23 @@ function getObjectIdForGroups(contact, group, res, callback) {
 router.get('/', (req, res, next) => {
   Contact.find()
     .populate('group')
+    .lean()
     .then(contacts => {
-      res.status(200).json({
-        message: 'Contacts fetched successfully',
-        contacts: contacts.map(
-          e => { return {
-              id: e.id,
-              name: e.name,
-              email: e.email,
-              phone: e.phone,
-              imageUrl: e.imageUrl,
-              group: e.group ? e.group.map(
-                e => { return {
-                    id: e.id,
-                    name: e.name,
-                    email: e.email,
-                    phone: e.phone,
-                    imageUrl: e.imageUrl
-                  }
+      res.status(200).json(contacts.map(
+          contact => {
+            delete contact._id;
+            if (contact.group) {
+              contact.group.map(
+                groupContact => {
+                  delete groupContact._id;
+                  return groupContact;
                 }
-              ) : null
+              );
             }
+            return contact;
           }
         )
-      });
+      );
     })
     .catch(error => {
       res.status(500).json({

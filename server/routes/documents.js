@@ -6,19 +6,15 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   Document.find()
+    .lean()
     .then(documents => {
-      res.status(200).json({
-        message: 'Documents fetched successfully',
-        documents: documents.map(
-          e => { return {
-            id: e.id,
-            name: e.name,
-            description: e.description,
-            url: e.url,
-            children: e.children
-          }}
+      res.status(200).json(documents.map(
+          document => {
+            delete document._id;
+            return document;
+          }
         )
-      });
+      );
     })
     .catch(error => {
       res.status(500).json({

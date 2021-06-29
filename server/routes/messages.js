@@ -8,18 +8,16 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
   Message.find()
     .populate('sender')
+    .lean()
     .then(messages => {
-      res.status(200).json({
-        message: 'Messages fetched successfully',
-        messages: messages.map(
-          e => { return {
-            id: e.id,
-            subject: e.subject,
-            msgText: e.msgText,
-            sender: e.sender.id
-          }}
+      res.status(200).json(messages.map(
+          message => {
+            delete message._id;
+            message.sender = message.sender.id;
+            return message;
+          }
         )
-      });
+      );
     })
     .catch(error => {
       res.status(500).json({

@@ -14,10 +14,10 @@ export class ContactService {
 
   constructor(private http: HttpClient) {
     this.http
-      .get<{message: string, contacts: Contact[]}>('http://localhost:3000/contacts')
+      .get<Contact[]>('http://localhost:3000/contacts')
       .subscribe(
-        (data: {message: string, contacts: Contact[]}) => {
-          this.contacts = data.contacts;
+        contacts => {
+          this.contacts = contacts;
           this.sortAndSend();
         },
         (error: any) => console.log(error)

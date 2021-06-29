@@ -12,10 +12,10 @@ export class MessageService {
 
   constructor(private http: HttpClient) { 
     this.http
-      .get<{message: string, messages: Message[]}>('http://localhost:3000/messages')
+      .get<Message[]>('http://localhost:3000/messages')
       .subscribe(
-        (data: {message: string, messages: Message[]}) => {
-          this.messages = data.messages;
+        messages => {
+          this.messages = messages;
           this.sortAndSend();
         },
         (error: any) => console.log(error)

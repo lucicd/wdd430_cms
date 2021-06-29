@@ -12,10 +12,10 @@ export class DocumentService {
 
   constructor(private http: HttpClient) {
     this.http
-      .get<{message: string, documents: Document[]}>('http://localhost:3000/documents')
+      .get<Document[]>('http://localhost:3000/documents')
       .subscribe(
-        (data: {message: string, documents: Document[]}) => {
-          this.documents = data.documents;
+        documents => {
+          this.documents = documents;
           this.sortAndSend();
         },
         (error: any) => console.log(error)

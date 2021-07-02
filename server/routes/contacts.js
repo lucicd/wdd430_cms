@@ -5,6 +5,7 @@ const Contact = require('../models/contact');
 const router = express.Router();
 
 function saveContact(contact, res) {
+  console.log(contact);
   contact.save()
     .then(createdContact => {
       res.status(201).json({
@@ -95,7 +96,7 @@ router.post('/', (req, res, next) => {
     imageUrl: req.body.imageUrl
   });
 
-  if (req.body.group) {
+  if (req.body.group && req.body.group.length > 0) {
     getObjectIdForGroups(contact, req.body.group, res, () => {
       saveContact(contact, res);
     });

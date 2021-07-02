@@ -17,14 +17,12 @@ export class MessageItemComponent implements OnInit, OnDestroy {
   constructor(private contactService: ContactService) { }
 
   ngOnInit(): void {
-    this.subscription = this.contactService.contactListChangedEvent.subscribe(
-      () => {
-        const contact: Contact | null = this.contactService.getContact(this.message.sender);
-        this.messageSender = contact?.name ?? 'Unknow contact';
-      }
-    );
-    const contact: Contact | null = this.contactService.getContact(this.message.sender);
-    this.messageSender = contact?.name ?? 'Unknow contact';
+    const showSender = () => {
+      const contact: Contact | null = this.contactService.getContact(this.message.sender);
+      this.messageSender = contact?.name ?? 'Unknown contact';
+    }
+    showSender();
+    this.subscription = this.contactService.contactListChangedEvent.subscribe(showSender);
   }
 
   ngOnDestroy(): void {
